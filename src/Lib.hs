@@ -33,18 +33,19 @@ searchYTPlaylists = do
       putStrLn $ (show playlists)
       putStrLn "Enter # of playlist you're interested in (only one):"
       nr <- return ("15")
-      getPlaylistVideos $ playlistId playlists (read nr :: Int)
+      items <- getPlaylistVideos (playlistId playlists (read nr :: Int))
+      putStrLn $ show $ length items
       return ()
   else
     searchYTPlaylists
 
-listPlaylists :: [YTPlaylist] -> Int -> [IO ()]
+listPlaylists :: [Playlist] -> Int -> [IO ()]
 listPlaylists [] _ = [return ()]
-listPlaylists ((_,title):xs) nr = line : (listPlaylists xs (nr+1))
-                                where line = putStrLn ("#" ++ (show nr) ++ " " ++ title)
+listPlaylists ((Playlist _ title):ps) nr = line : (listPlaylists ps (nr+1))
+                        where line = putStrLn ("#" ++ (show nr) ++ " " ++ title)
 
-playlistId :: [YTPlaylist] -> Int -> String
-playlistId pl idx = fst (pl!!(idx-1))
+playlistId :: [Playlist] -> Int -> String
+playlistId pl idx = pid (pl!!(idx-1))
 
 --getYTVideos :: IO()
 --getYTVideos = do

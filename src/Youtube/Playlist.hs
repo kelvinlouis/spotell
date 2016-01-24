@@ -1,42 +1,42 @@
-{-# LANGUAGE OverloadedStrings, DeriveGeneric #-}
+{-# LANGUAGE OverloadedStrings, RecordWildCards  #-}
 
 module Youtube.Playlist
     ( getPlaylists
-    , YTPlaylist
+    , Playlist(Playlist)
+    , pid
+    , title
     ) where
 
-import Network.Wreq
+import Network.Wreq hiding (Response)
 import Control.Lens
-import GHC.Generics
 import Data.Aeson
 import Prelude hiding (id)
 import qualified Data.Text as T
 
-data YTPlaylistItem = YTPlaylistItem {
-  id          :: String,
-  snippet     :: YTPlaylistSnippet 
-} deriving (Show,Generic)
+data Response = Response {
+  playlists :: [Playlist]
+} deriving (Show)
 
-data YTPlaylistSnippet = YTPlaylistSnippet {
-  title       :: String 
-} deriving (Show,Generic)
+data Playlist = Playlist {
+  pid   :: String,
+  title :: String
+} deriving (Show)
 
-data YTPlaylistItemArray = YTPlaylistItemArray {
-  items :: [YTPlaylistItem] 
-} deriving (Show,Generic)
+instance FromJSON Response where
+  parseJSON = withObject "response" $ \o -> do
+    playlists <- o .: "items"
+    return Response{..}
 
-instance FromJSON YTPlaylistItem
-instance FromJSON YTPlaylistSnippet
-instance FromJSON YTPlaylistItemArray
-
-type YTPlaylist = (String, String)
+instance FromJSON Playlist where
+  parseJSON = withObject "playlist" $ \o -> do
+    pid     <- o .: "id"
+    snippet <- o .: "snippet"
+    title   <- snippet .: "title"
+    return Playlist{..}
 
 -- todo cache playlist with cid into txt
 
-simplify :: YTPlaylistItem -> YTPlaylist
-simplify (YTPlaylistItem id (YTPlaylistSnippet t)) = (id, t)
-
-getPlaylists :: String -> IO ([YTPlaylist])
+getPlaylists :: String -> IO ([Playlist])
 getPlaylists cid = do
   let opts = defaults & param "part" .~ ["snippet"]
                       & param "channelId" .~ [T.pack cid]
@@ -44,4 +44,4 @@ getPlaylists cid = do
                       & param "fields" .~ ["items(id,snippet(title))"]
                       & param "key" .~ ["AIzaSyClRz-XU6gAt4h-_JRdIA2UIQn8TroxTIk"]
   r <- asJSON =<< getWith opts "https://www.googleapis.com/youtube/v3/playlists"
-  return (map simplify (items $ (r ^. responseBody)))
+  return (playlists $ (r ^. responseBody))
