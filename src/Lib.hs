@@ -1,10 +1,9 @@
-{-# LANGUAGE OverloadedStrings, DeriveGeneric #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Lib
     ( searchYTPlaylists
     ) where
 
-import GHC.Generics
 import Data.Maybe
 import Youtube.Channel
 import Youtube.Playlist
@@ -16,12 +15,12 @@ extract Nothing = error "There is nothing to extract from (Maybe a)"
 searchYTPlaylists :: IO()
 searchYTPlaylists = do
   putStrLn "Enter name of Youtube channel:"
-  channelName <- getLine
+  channelName <- return ("worldstarhiphoptv")
   cid <- getChannelId $ channelName
   if (isJust cid) then
     do
       playlists <- getPlaylists $ extract cid
-      putStrLn playlists
+      putStrLn $ show playlists
       return ()
   else
     searchYTPlaylists

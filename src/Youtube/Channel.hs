@@ -14,11 +14,11 @@ import qualified Data.Text as T
 
 data YTChannelItem = YTChannelItem { 
   id :: String } 
-  deriving (Show,Generic)
+  deriving (Show, Generic)
 
 data YTChannelItemArray = YTChannelItemArray {
   items :: [YTChannelItem] } 
-  deriving (Show,Generic)
+  deriving (Show, Generic)
 
 instance FromJSON YTChannelItem
 instance FromJSON YTChannelItemArray

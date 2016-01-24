@@ -11,24 +11,35 @@ import Data.Aeson
 import Prelude hiding (id)
 import qualified Data.Text as T
 
-data YTPlaylistSnippet = YTPlaylistSnippet {
+data YTPlaylistItem = YTPlaylistItem {
   id          :: String,
+  snippet     :: YTPlaylistSnippet }
+  deriving (Show,Generic)
+
+data YTPlaylistSnippet = YTPlaylistSnippet {
   title       :: String,
   description :: String }
   deriving (Show,Generic)
 
-data YTPlaylistSnippetArray = YTPlaylistSnippetArray {
-  items :: [YTPlaylistSnippet] }
+data YTPlaylistItemArray = YTPlaylistItemArray {
+  items :: [YTPlaylistItem] }
   deriving (Show,Generic)
 
+instance FromJSON YTPlaylistItem
 instance FromJSON YTPlaylistSnippet
-instance FromJSON YTPlaylistSnippetArray
+instance FromJSON YTPlaylistItemArray
 
-getPlaylists :: String -> IO (String)
+type YTPlaylist = (String, String)
+
+simplify :: YTPlaylistItem -> YTPlaylist
+simplify (YTPlaylistItem id (YTPlaylistSnippet t _)) = (id, t)
+
+getPlaylists :: String -> IO ([YTPlaylist])
 getPlaylists cid = do
   let opts = defaults & param "part" .~ ["snippet"]
                       & param "channelId" .~ [T.pack cid]
                       & param "maxResults" .~ ["50"]
+                      & param "fields" .~ ["items(id,snippet(title,description))"]
                       & param "key" .~ ["AIzaSyClRz-XU6gAt4h-_JRdIA2UIQn8TroxTIk"]
-  r <- getWith opts "https://www.googleapis.com/youtube/v3/playlists"
-  return ("ASD")
+  r <- asJSON =<< getWith opts "https://www.googleapis.com/youtube/v3/playlists"
+  return (map simplify (items $ (r ^. responseBody)))
