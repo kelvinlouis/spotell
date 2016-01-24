@@ -13,12 +13,12 @@ import Prelude hiding (id)
 import qualified Data.Text as T
 
 data YTChannelItem = YTChannelItem { 
-  id :: String } 
-  deriving (Show, Generic)
+  id :: String 
+} deriving (Show, Generic)
 
 data YTChannelItemArray = YTChannelItemArray {
-  items :: [YTChannelItem] } 
-  deriving (Show, Generic)
+  items :: [YTChannelItem] 
+}  deriving (Show, Generic)
 
 instance FromJSON YTChannelItem
 instance FromJSON YTChannelItemArray

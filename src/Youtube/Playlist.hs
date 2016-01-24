@@ -14,16 +14,16 @@ import qualified Data.Text as T
 
 data YTPlaylistItem = YTPlaylistItem {
   id          :: String,
-  snippet     :: YTPlaylistSnippet }
-  deriving (Show,Generic)
+  snippet     :: YTPlaylistSnippet 
+} deriving (Show,Generic)
 
 data YTPlaylistSnippet = YTPlaylistSnippet {
-  title       :: String }
-  deriving (Show,Generic)
+  title       :: String 
+} deriving (Show,Generic)
 
 data YTPlaylistItemArray = YTPlaylistItemArray {
-  items :: [YTPlaylistItem] }
-  deriving (Show,Generic)
+  items :: [YTPlaylistItem] 
+} deriving (Show,Generic)
 
 instance FromJSON YTPlaylistItem
 instance FromJSON YTPlaylistSnippet
