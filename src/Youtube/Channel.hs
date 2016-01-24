@@ -23,6 +23,8 @@ data YTChannelItemArray = YTChannelItemArray {
 instance FromJSON YTChannelItem
 instance FromJSON YTChannelItemArray
 
+-- todo cache id with name into txt
+
 getChannelId :: String -> IO (Maybe String)
 getChannelId channelName = do
   let opts = defaults & param "part" .~ ["id"]

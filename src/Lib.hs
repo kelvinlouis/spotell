@@ -5,25 +5,46 @@ module Lib
     ) where
 
 import Data.Maybe
+import Data.List.Split
 import Youtube.Channel
 import Youtube.Playlist
+import Youtube.PlaylistVideo
 
 extract :: Maybe a -> a
 extract (Just x) = x
 extract Nothing = error "There is nothing to extract from (Maybe a)"
 
+hr :: IO()
+hr = putStrLn "======================================================================"
+
 searchYTPlaylists :: IO()
 searchYTPlaylists = do
+  hr
   putStrLn "Enter name of Youtube channel:"
   channelName <- return ("worldstarhiphoptv")
+  putStrLn channelName
+  hr
   cid <- getChannelId $ channelName
   if (isJust cid) then
     do
       playlists <- getPlaylists $ extract cid
-      putStrLn $ show playlists
+      sequence $ listPlaylists playlists 1
+      hr
+      putStrLn $ (show playlists)
+      putStrLn "Enter # of playlist you're interested in (only one):"
+      nr <- return ("15")
+      getPlaylistVideos $ playlistId playlists (read nr :: Int)
       return ()
   else
     searchYTPlaylists
+
+listPlaylists :: [YTPlaylist] -> Int -> [IO ()]
+listPlaylists [] _ = [return ()]
+listPlaylists ((_,title):xs) nr = line : (listPlaylists xs (nr+1))
+                                where line = putStrLn ("#" ++ (show nr) ++ " " ++ title)
+
+playlistId :: [YTPlaylist] -> Int -> String
+playlistId pl idx = fst (pl!!(idx-1))
 
 --getYTVideos :: IO()
 --getYTVideos = do
@@ -34,12 +55,4 @@ searchYTPlaylists = do
 --                      & param "maxResults" .~ ["50"]
 --                      & param "key" .~ ["AIzaSyClRz-XU6gAt4h-_JRdIA2UIQn8TroxTIk"]
 --  r <- getWith opts "https://www.googleapis.com/youtube/v3/search"
---  putStrLn $ show r
-
---getYoutubePlaylistItems :: IO()
---getYoutubePlaylistItems = do
---  let opts = defaults & param "part" .~ ["snippet"]
---                      & param "playlistId" .~ ["PLcK0neBMyFxSpYgDfKCsHRwgxlN-Tnt9D"]
---                      & param "key" .~ ["AIzaSyClRz-XU6gAt4h-_JRdIA2UIQn8TroxTIk"]
---  r <- getWith opts "https://www.googleapis.com/youtube/v3/playlistItems"
 --  putStrLn $ show r

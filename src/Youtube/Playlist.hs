@@ -2,6 +2,7 @@
 
 module Youtube.Playlist
     ( getPlaylists
+    , YTPlaylist
     ) where
 
 import Network.Wreq
@@ -17,8 +18,7 @@ data YTPlaylistItem = YTPlaylistItem {
   deriving (Show,Generic)
 
 data YTPlaylistSnippet = YTPlaylistSnippet {
-  title       :: String,
-  description :: String }
+  title       :: String }
   deriving (Show,Generic)
 
 data YTPlaylistItemArray = YTPlaylistItemArray {
@@ -31,15 +31,17 @@ instance FromJSON YTPlaylistItemArray
 
 type YTPlaylist = (String, String)
 
+-- todo cache playlist with cid into txt
+
 simplify :: YTPlaylistItem -> YTPlaylist
-simplify (YTPlaylistItem id (YTPlaylistSnippet t _)) = (id, t)
+simplify (YTPlaylistItem id (YTPlaylistSnippet t)) = (id, t)
 
 getPlaylists :: String -> IO ([YTPlaylist])
 getPlaylists cid = do
   let opts = defaults & param "part" .~ ["snippet"]
                       & param "channelId" .~ [T.pack cid]
                       & param "maxResults" .~ ["50"]
-                      & param "fields" .~ ["items(id,snippet(title,description))"]
+                      & param "fields" .~ ["items(id,snippet(title))"]
                       & param "key" .~ ["AIzaSyClRz-XU6gAt4h-_JRdIA2UIQn8TroxTIk"]
   r <- asJSON =<< getWith opts "https://www.googleapis.com/youtube/v3/playlists"
   return (map simplify (items $ (r ^. responseBody)))
