@@ -30,11 +30,14 @@ searchYTPlaylists = do
       playlists <- getPlaylists $ extract cid
       sequence $ listPlaylists playlists 1
       hr
-      putStrLn $ (show playlists)
       putStrLn "Enter # of playlist you're interested in (only one):"
-      nr <- return ("15")
+      --nr <- getLine
+      nr <- return ("3")
+      --nr <- return ("16")
+      putStrLn nr
       items <- getPlaylistVideos (playlistId playlists (read nr :: Int))
-      putStrLn $ show $ length items
+      hr
+      putStrLn $ show $ getTitles items
       return ()
   else
     searchYTPlaylists

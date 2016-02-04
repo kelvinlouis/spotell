@@ -23,6 +23,7 @@ library
                      , generic-deriving
                      , aeson
                      , split
+                     , directory
   default-language:    Haskell2010
 
 executable spotell-exe
